@@ -876,11 +876,11 @@
   }
 
   function saveData() {
-    try { localStorage.setItem('jialu_contents', JSON.stringify(contents)); } catch(e) {}
+    try { localStorage.setItem('HQBBZ_contents', JSON.stringify(contents)); } catch(e) {}
   }
   function loadData() {
     try {
-      const d = localStorage.getItem('jialu_contents');
+      const d = localStorage.getItem( HQBBZ_contents');
       if (d) contents = JSON.parse(d);
     } catch(e) {}
   }
