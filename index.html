@@ -1,0 +1,1437 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>家录 · 小红书家居博主内容规划台</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FBF7F2;
+    --bg-deep: #F3EDE4;
+    --fg: #2C2420;
+    --fg-muted: #8C7E72;
+    --accent: #C4704B;
+    --accent-light: #E8A87C;
+    --accent-glow: rgba(196,112,75,0.15);
+    --sage: #7A9E7E;
+    --sage-light: #B5CFB8;
+    --card: #FFFFFF;
+    --card-hover: #FFFDFB;
+    --border: #E8DFD4;
+    --border-light: #F0EAE2;
+    --shadow: 0 2px 16px rgba(44,36,32,0.06);
+    --shadow-lg: 0 8px 32px rgba(44,36,32,0.1);
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* 背景装饰 */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -150px; left: -150px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(122,158,126,0.1) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .font-display { font-family: 'Playfair Display', serif; }
+
+  /* 滚动条 */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--fg-muted); }
+
+  /* 侧边栏 */
+  .sidebar {
+    position: fixed; left: 0; top: 0;
+    width: 240px; height: 100vh;
+    background: var(--fg);
+    color: #F3EDE4;
+    z-index: 100;
+    display: flex; flex-direction: column;
+    transition: transform 0.3s ease;
+  }
+  .sidebar .logo-area {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid rgba(243,237,228,0.1);
+  }
+  .sidebar .logo-area h1 {
+    font-size: 22px; letter-spacing: 2px;
+  }
+  .sidebar .logo-area p {
+    font-size: 11px; color: rgba(243,237,228,0.45);
+    margin-top: 4px; letter-spacing: 1px;
+  }
+  .sidebar nav { flex: 1; padding: 16px 12px; overflow-y: auto; }
+  .sidebar nav a {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 14px; border-radius: var(--radius-sm);
+    font-size: 13.5px; font-weight: 400;
+    color: rgba(243,237,228,0.55);
+    cursor: pointer; transition: all 0.2s;
+    text-decoration: none; margin-bottom: 2px;
+  }
+  .sidebar nav a i { width: 18px; text-align: center; font-size: 14px; }
+  .sidebar nav a:hover { color: #F3EDE4; background: rgba(243,237,228,0.08); }
+  .sidebar nav a.active {
+    color: var(--accent-light);
+    background: rgba(196,112,75,0.15);
+    font-weight: 500;
+  }
+  .sidebar .sidebar-stats {
+    padding: 16px 20px;
+    border-top: 1px solid rgba(243,237,228,0.1);
+  }
+  .sidebar .sidebar-stats .stat-row {
+    display: flex; justify-content: space-between;
+    font-size: 11.5px; margin-bottom: 6px;
+  }
+  .sidebar .sidebar-stats .stat-row span:first-child { color: rgba(243,237,228,0.4); }
+  .sidebar .sidebar-stats .stat-row span:last-child { color: var(--accent-light); font-weight: 600; }
+
+  /* 主内容区 */
+  .main-content {
+    margin-left: 240px;
+    min-height: 100vh;
+    position: relative; z-index: 1;
+  }
+
+  /* 顶栏 */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(251,247,242,0.85);
+    backdrop-filter: blur(16px);
+    padding: 16px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .topbar .page-title { font-size: 18px; font-weight: 600; }
+  .topbar .page-title span { color: var(--fg-muted); font-weight: 400; font-size: 13px; margin-left: 8px; }
+  .topbar .topbar-actions { display: flex; align-items: center; gap: 10px; }
+
+  /* 按钮系统 */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 18px; border-radius: var(--radius-sm);
+    font-size: 13px; font-weight: 500;
+    cursor: pointer; border: none;
+    transition: all 0.2s; outline: none;
+    font-family: inherit;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary {
+    background: var(--accent); color: white;
+    box-shadow: 0 2px 8px rgba(196,112,75,0.25);
+  }
+  .btn-primary:hover { background: #B5633F; box-shadow: 0 4px 14px rgba(196,112,75,0.35); }
+  .btn-ghost {
+    background: transparent; color: var(--fg-muted);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { color: var(--fg); border-color: var(--fg-muted); background: var(--bg-deep); }
+  .btn-sage {
+    background: var(--sage); color: white;
+    box-shadow: 0 2px 8px rgba(122,158,126,0.25);
+  }
+  .btn-sage:hover { background: #6B8E6F; }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  .btn-icon {
+    width: 36px; height: 36px; padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 50%; border: 1px solid var(--border);
+    background: var(--card); color: var(--fg-muted); cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-icon:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* 卡片 */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: all 0.25s;
+  }
+  .card:hover { box-shadow: var(--shadow-lg); }
+  .card-header {
+    padding: 18px 20px 14px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .card-header h3 { font-size: 14px; font-weight: 600; }
+  .card-body { padding: 20px; }
+
+  /* 内容页面 */
+  .page { display: none; padding: 28px 32px 60px; }
+  .page.active { display: block; animation: fadeUp 0.35s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* 统计卡片 */
+  .stat-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border-light);
+    border-radius: var(--radius); padding: 20px;
+    box-shadow: var(--shadow); position: relative; overflow: hidden;
+  }
+  .stat-card::after {
+    content: ''; position: absolute; top: 0; right: 0;
+    width: 80px; height: 80px;
+    border-radius: 0 0 0 80px;
+    opacity: 0.08;
+  }
+  .stat-card:nth-child(1)::after { background: var(--accent); }
+  .stat-card:nth-child(2)::after { background: var(--sage); }
+  .stat-card:nth-child(3)::after { background: #D4A574; }
+  .stat-card:nth-child(4)::after { background: #8B7EC8; }
+  .stat-card .stat-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; margin-bottom: 14px;
+  }
+  .stat-card:nth-child(1) .stat-icon { background: rgba(196,112,75,0.1); color: var(--accent); }
+  .stat-card:nth-child(2) .stat-icon { background: rgba(122,158,126,0.1); color: var(--sage); }
+  .stat-card:nth-child(3) .stat-icon { background: rgba(212,165,116,0.1); color: #D4A574; }
+  .stat-card:nth-child(4) .stat-icon { background: rgba(139,126,200,0.1); color: #8B7EC8; }
+  .stat-card .stat-value { font-size: 28px; font-weight: 700; line-height: 1; }
+  .stat-card .stat-label { font-size: 12px; color: var(--fg-muted); margin-top: 6px; }
+
+  /* 看板 - 拖拽列 */
+  .kanban { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 12px; min-height: 500px; }
+  .kanban-column {
+    min-width: 280px; flex: 1;
+    background: var(--bg-deep);
+    border-radius: var(--radius);
+    padding: 16px;
+    display: flex; flex-direction: column;
+  }
+  .kanban-column.drag-over { background: rgba(196,112,75,0.06); outline: 2px dashed var(--accent); outline-offset: -2px; }
+  .kanban-column-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px; padding: 0 4px;
+  }
+  .kanban-column-header .col-title {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 600;
+  }
+  .kanban-column-header .col-title .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .kanban-column-header .col-count {
+    font-size: 11px; color: var(--fg-muted);
+    background: var(--card); padding: 2px 8px;
+    border-radius: 10px;
+  }
+  .kanban-cards { flex: 1; display: flex; flex-direction: column; gap: 10px; min-height: 100px; }
+
+  .kanban-card {
+    background: var(--card);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 14px 16px;
+    cursor: grab;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .kanban-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+  .kanban-card.dragging { opacity: 0.4; transform: rotate(2deg); }
+  .kanban-card .card-title { font-size: 13.5px; font-weight: 500; line-height: 1.5; margin-bottom: 8px; }
+  .kanban-card .card-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+  .kanban-card .card-tag {
+    font-size: 10.5px; padding: 2px 8px;
+    border-radius: 4px; font-weight: 500;
+  }
+  .kanban-card .card-meta {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 11px; color: var(--fg-muted);
+  }
+  .kanban-card .card-meta .schedule { display: flex; align-items: center; gap: 4px; }
+  .kanban-card .card-actions {
+    position: absolute; top: 10px; right: 10px;
+    display: flex; gap: 4px; opacity: 0; transition: opacity 0.2s;
+  }
+  .kanban-card:hover .card-actions { opacity: 1; }
+  .kanban-card .card-actions button {
+    width: 24px; height: 24px; border-radius: 6px;
+    border: none; background: var(--bg-deep);
+    color: var(--fg-muted); cursor: pointer;
+    font-size: 10px; display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .kanban-card .card-actions button:hover { background: var(--accent); color: white; }
+
+  /* 日历视图 */
+  .calendar-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px;
+    background: var(--border-light);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .calendar-header-cell {
+    background: var(--fg); color: var(--bg);
+    padding: 10px; text-align: center;
+    font-size: 12px; font-weight: 600;
+  }
+  .calendar-cell {
+    background: var(--card);
+    min-height: 110px; padding: 8px;
+    position: relative;
+    transition: background 0.15s;
+  }
+  .calendar-cell:hover { background: var(--card-hover); }
+  .calendar-cell.other-month { background: var(--bg-deep); }
+  .calendar-cell.other-month .day-num { color: var(--border); }
+  .calendar-cell.today { background: rgba(196,112,75,0.04); }
+  .calendar-cell.today .day-num {
+    background: var(--accent); color: white;
+    width: 24px; height: 24px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .day-num { font-size: 12px; font-weight: 500; margin-bottom: 4px; }
+  .calendar-cell .cal-item {
+    font-size: 10.5px; padding: 3px 6px;
+    border-radius: 4px; margin-bottom: 3px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .calendar-cell .cal-item:hover { filter: brightness(0.95); }
+
+  /* 选题库 */
+  .topic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .topic-card {
+    background: var(--card); border: 1px solid var(--border-light);
+    border-radius: var(--radius); padding: 20px;
+    transition: all 0.25s; cursor: pointer;
+    position: relative; overflow: hidden;
+  }
+  .topic-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+  .topic-card .topic-cat {
+    font-size: 10.5px; font-weight: 600; padding: 3px 10px;
+    border-radius: 5px; display: inline-block; margin-bottom: 10px;
+  }
+  .topic-card .topic-title { font-size: 15px; font-weight: 600; line-height: 1.5; margin-bottom: 8px; }
+  .topic-card .topic-desc { font-size: 12.5px; color: var(--fg-muted); line-height: 1.6; margin-bottom: 12px; }
+  .topic-card .topic-footer { display: flex; align-items: center; justify-content: space-between; }
+  .topic-card .topic-heat { display: flex; align-items: center; gap: 4px; font-size: 11px; }
+  .topic-card .topic-heat i { color: var(--accent); }
+  .topic-card .topic-status {
+    font-size: 10.5px; padding: 3px 10px;
+    border-radius: 5px; font-weight: 500;
+  }
+
+  /* 发布时间表 */
+  .time-slots { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; }
+  .time-slot-col {}
+  .time-slot-day {
+    text-align: center; font-size: 13px; font-weight: 600;
+    padding: 10px; background: var(--fg); color: var(--bg);
+    border-radius: 10px 10px 0 0;
+  }
+  .time-slot-body {
+    background: var(--card); border: 1px solid var(--border-light);
+    border-top: none; border-radius: 0 0 10px 10px;
+    padding: 10px; min-height: 160px;
+  }
+  .time-slot-item {
+    padding: 8px 10px; border-radius: 6px;
+    margin-bottom: 6px; font-size: 11px;
+    border-left: 3px solid;
+    transition: all 0.15s; cursor: pointer;
+  }
+  .time-slot-item:hover { transform: translateX(2px); }
+  .time-slot-item .slot-time { font-weight: 600; margin-bottom: 2px; }
+  .time-slot-item .slot-title { color: var(--fg-muted); line-height: 1.4; }
+
+  /* 标签颜色系统 */
+  .tag-改造 { background: rgba(196,112,75,0.1); color: #C4704B; }
+  .tag-好物 { background: rgba(212,165,116,0.12); color: #B8864E; }
+  .tag-干货 { background: rgba(122,158,126,0.12); color: #5E8A62; }
+  .tag-日常 { background: rgba(139,126,200,0.1); color: #7B6CB8; }
+  .tag-灵感 { background: rgba(200,120,140,0.1); color: #B06070; }
+  .tag-Vlog { background: rgba(80,160,180,0.1); color: #4A9AAE; }
+
+  .status-待定 { background: rgba(140,126,114,0.1); color: #8C7E72; }
+  .status-进行中 { background: rgba(196,112,75,0.1); color: #C4704B; }
+  .status-已完成 { background: rgba(122,158,126,0.12); color: #5E8A62; }
+
+  /* 模态框 */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(44,36,32,0.5);
+    backdrop-filter: blur(4px);
+    display: none; align-items: center; justify-content: center;
+    animation: fadeIn 0.2s ease;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--card);
+    border-radius: 18px;
+    width: 520px; max-width: 92vw;
+    max-height: 88vh; overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(44,36,32,0.2);
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+  @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+  .modal-header {
+    padding: 22px 24px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .modal-header h3 { font-size: 16px; font-weight: 600; }
+  .modal-close {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: none; background: var(--bg-deep);
+    color: var(--fg-muted); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .modal-close:hover { background: var(--accent); color: white; }
+  .modal-body { padding: 20px 24px; }
+  .modal-footer {
+    padding: 16px 24px 22px;
+    display: flex; justify-content: flex-end; gap: 10px;
+    border-top: 1px solid var(--border-light);
+  }
+
+  /* 表单 */
+  .form-group { margin-bottom: 16px; }
+  .form-label { display: block; font-size: 12.5px; font-weight: 500; margin-bottom: 6px; color: var(--fg); }
+  .form-input, .form-select, .form-textarea {
+    width: 100%; padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 13px; font-family: inherit;
+    background: var(--bg);
+    color: var(--fg);
+    transition: all 0.2s;
+    outline: none;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+  .form-textarea { resize: vertical; min-height: 80px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* Toast */
+  .toast-container {
+    position: fixed; top: 20px; right: 20px; z-index: 300;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .toast {
+    background: var(--fg); color: var(--bg);
+    padding: 12px 20px; border-radius: 10px;
+    font-size: 13px; font-weight: 500;
+    box-shadow: 0 8px 24px rgba(44,36,32,0.25);
+    animation: slideIn 0.3s ease;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .toast i { color: var(--accent-light); }
+  @keyframes slideIn { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:translateX(0); } }
+
+  /* 筛选栏 */
+  .filter-bar {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .filter-chip {
+    padding: 6px 14px; border-radius: 20px;
+    font-size: 12px; font-weight: 500;
+    border: 1px solid var(--border);
+    background: var(--card); color: var(--fg-muted);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .filter-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-chip.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+  /* 发布时间建议 */
+  .time-tip {
+    background: linear-gradient(135deg, rgba(196,112,75,0.06), rgba(122,158,126,0.06));
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    margin-bottom: 20px;
+    display: flex; align-items: flex-start; gap: 14px;
+  }
+  .time-tip i { font-size: 20px; color: var(--accent); margin-top: 2px; }
+  .time-tip .tip-content h4 { font-size: 13.5px; font-weight: 600; margin-bottom: 4px; }
+  .time-tip .tip-content p { font-size: 12px; color: var(--fg-muted); line-height: 1.6; }
+
+  /* 进度条 */
+  .progress-bar {
+    height: 6px; background: var(--bg-deep);
+    border-radius: 3px; overflow: hidden; margin-top: 8px;
+  }
+  .progress-bar .fill {
+    height: 100%; border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+
+  /* 响应式 */
+  @media (max-width: 1024px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .main-content { margin-left: 0; }
+    .stat-cards { grid-template-columns: repeat(2, 1fr); }
+    .time-slots { grid-template-columns: repeat(4, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .stat-cards { grid-template-columns: 1fr; }
+    .kanban-column { min-width: 260px; }
+    .time-slots { grid-template-columns: repeat(2, 1fr); }
+    .page { padding: 16px; }
+  }
+
+  /* 空状态 */
+  .empty-state {
+    text-align: center; padding: 40px 20px;
+    color: var(--fg-muted);
+  }
+  .empty-state i { font-size: 36px; margin-bottom: 12px; opacity: 0.3; }
+  .empty-state p { font-size: 13px; }
+
+  /* 浮动粒子装饰 */
+  .deco-dot {
+    position: fixed; border-radius: 50%;
+    pointer-events: none; z-index: 0;
+    animation: floatDot 6s ease-in-out infinite;
+  }
+  @keyframes floatDot {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-15px) scale(1.1); }
+  }
+</style>
+</head>
+<body>
+
+<!-- 装饰粒子 -->
+<div class="deco-dot" style="width:6px;height:6px;background:var(--accent);opacity:0.12;top:20%;right:12%;animation-delay:0s;"></div>
+<div class="deco-dot" style="width:4px;height:4px;background:var(--sage);opacity:0.15;top:45%;right:8%;animation-delay:2s;"></div>
+<div class="deco-dot" style="width:5px;height:5px;background:var(--accent-light);opacity:0.1;top:70%;right:18%;animation-delay:4s;"></div>
+
+<!-- 侧边栏 -->
+<aside class="sidebar" id="sidebar">
+  <div class="logo-area">
+    <h1 class="font-display">JIA LU</h1>
+    <p>小红书家居博主工作台</p>
+  </div>
+  <nav>
+    <a class="active" data-page="dashboard" onclick="switchPage('dashboard')">
+      <i class="fas fa-th-large"></i> 工作台
+    </a>
+    <a data-page="kanban" onclick="switchPage('kanban')">
+      <i class="fas fa-columns"></i> 内容看板
+    </a>
+    <a data-page="calendar" onclick="switchPage('calendar')">
+      <i class="fas fa-calendar-alt"></i> 发布日历
+    </a>
+    <a data-page="topics" onclick="switchPage('topics')">
+      <i class="fas fa-lightbulb"></i> 选题灵感库
+    </a>
+    <a data-page="schedule" onclick="switchPage('schedule')">
+      <i class="fas fa-clock"></i> 发布时间表
+    </a>
+  </nav>
+  <div class="sidebar-stats">
+    <div class="stat-row"><span>本月已发布</span><span id="stat-published">0</span></div>
+    <div class="stat-row"><span>待发布内容</span><span id="stat-pending">0</span></div>
+    <div class="stat-row"><span>选题储备</span><span id="stat-topics">0</span></div>
+  </div>
+</aside>
+
+<!-- 主内容 -->
+<div class="main-content">
+  <!-- 顶栏 -->
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="btn-icon" style="display:none;" id="menuBtn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="page-title" id="pageTitle">工作台 <span>总览你的内容规划</span></div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-primary" onclick="openAddModal()">
+        <i class="fas fa-plus"></i> 新建内容
+      </button>
+    </div>
+  </div>
+
+  <!-- 工作台页面 -->
+  <div class="page active" id="page-dashboard">
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+        <div class="stat-value" id="dash-total">0</div>
+        <div class="stat-label">总内容数</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-value" id="dash-done">0</div>
+        <div class="stat-label">已发布</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-edit"></i></div>
+        <div class="stat-value" id="dash-wip">0</div>
+        <div class="stat-label">进行中</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-fire"></i></div>
+        <div class="stat-value" id="dash-hot">0</div>
+        <div class="stat-label">高热度选题</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:20px;">
+      <!-- 近期待发布 -->
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fas fa-clock" style="color:var(--accent);margin-right:8px;"></i>近期待发布</h3>
+          <button class="btn btn-ghost btn-sm" onclick="switchPage('kanban')">查看全部</button>
+        </div>
+        <div class="card-body" id="dash-upcoming" style="padding:12px 20px 20px;"></div>
+      </div>
+
+      <!-- 选题分类占比 -->
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fas fa-chart-pie" style="color:var(--sage);margin-right:8px;"></i>选题分类分布</h3>
+        </div>
+        <div class="card-body" id="dash-category-chart"></div>
+      </div>
+    </div>
+
+    <!-- 本周日历预览 -->
+    <div class="card" style="margin-top:20px;">
+      <div class="card-header">
+        <h3><i class="fas fa-calendar-week" style="color:var(--accent-light);margin-right:8px;"></i>本周发布安排</h3>
+        <button class="btn btn-ghost btn-sm" onclick="switchPage('calendar')">完整日历</button>
+      </div>
+      <div class="card-body" id="dash-week"></div>
+    </div>
+  </div>
+
+  <!-- 内容看板页面 -->
+  <div class="page" id="page-kanban">
+    <div class="filter-bar">
+      <span style="font-size:12px;color:var(--fg-muted);margin-right:4px;">筛选：</span>
+      <div class="filter-chip active" onclick="filterKanban('all', this)">全部</div>
+      <div class="filter-chip" onclick="filterKanban('改造', this)">改造</div>
+      <div class="filter-chip" onclick="filterKanban('好物', this)">好物</div>
+      <div class="filter-chip" onclick="filterKanban('干货', this)">干货</div>
+      <div class="filter-chip" onclick="filterKanban('日常', this)">日常</div>
+      <div class="filter-chip" onclick="filterKanban('灵感', this)">灵感</div>
+      <div class="filter-chip" onclick="filterKanban('Vlog', this)">Vlog</div>
+    </div>
+    <div class="kanban" id="kanbanBoard">
+      <!-- JS动态渲染 -->
+    </div>
+  </div>
+
+  <!-- 发布日历页面 -->
+  <div class="page" id="page-calendar">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="btn-icon" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+        <span style="font-size:16px;font-weight:600;" id="calendarTitle">2024年1月</span>
+        <button class="btn-icon" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+        <button class="btn btn-ghost btn-sm" onclick="goToday()">今天</button>
+      </div>
+    </div>
+    <div class="calendar-grid" id="calendarGrid">
+      <!-- JS动态渲染 -->
+    </div>
+  </div>
+
+  <!-- 选题灵感库页面 -->
+  <div class="page" id="page-topics">
+    <div class="time-tip">
+      <i class="fas fa-magic"></i>
+      <div class="tip-content">
+        <h4>选题灵感生成器</h4>
+        <p>点击下方按钮，随机获取一个家居选题灵感。也可以在「新建内容」中把灵感直接转化为待办内容。</p>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:20px;">
+      <button class="btn btn-primary" onclick="generateIdea()"><i class="fas fa-dice"></i> 随机生成灵感</button>
+      <button class="btn btn-sage" onclick="openAddModal()"><i class="fas fa-plus"></i> 手动添加选题</button>
+    </div>
+    <div class="filter-bar">
+      <span style="font-size:12px;color:var(--fg-muted);margin-right:4px;">分类：</span>
+      <div class="filter-chip active" onclick="filterTopics('all', this)">全部</div>
+      <div class="filter-chip" onclick="filterTopics('改造', this)">改造</div>
+      <div class="filter-chip" onclick="filterTopics('好物', this)">好物</div>
+      <div class="filter-chip" onclick="filterTopics('干货', this)">干货</div>
+      <div class="filter-chip" onclick="filterTopics('日常', this)">日常</div>
+      <div class="filter-chip" onclick="filterTopics('灵感', this)">灵感</div>
+      <div class="filter-chip" onclick="filterTopics('Vlog', this)">Vlog</div>
+    </div>
+    <div class="topic-grid" id="topicGrid">
+      <!-- JS动态渲染 -->
+    </div>
+  </div>
+
+  <!-- 发布时间表页面 -->
+  <div class="page" id="page-schedule">
+    <div class="time-tip">
+      <i class="fas fa-chart-line"></i>
+      <div class="tip-content">
+        <h4>小红书家居赛道最佳发布时间</h4>
+        <p>根据平台数据，家居类内容的流量高峰期为：工作日 7:00-9:00（早通勤）、12:00-13:30（午休）、20:00-22:30（晚间浏览）；周末 10:00-12:00、15:00-17:00、20:00-23:00。建议提前15分钟发布，让系统完成推流。</p>
+      </div>
+    </div>
+    <div class="time-slots" id="timeSlots">
+      <!-- JS动态渲染 -->
+    </div>
+  </div>
+</div>
+
+<!-- 新建/编辑 模态框 -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">新建内容</h3>
+      <button class="modal-close" onclick="closeAddModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">标题</label>
+        <input class="form-input" id="formTitle" placeholder="小红书笔记标题，建议20字以内" maxlength="40">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">分类</label>
+          <select class="form-select" id="formCategory">
+            <option value="改造">改造</option>
+            <option value="好物">好物</option>
+            <option value="干货">干货</option>
+            <option value="日常">日常</option>
+            <option value="灵感">灵感</option>
+            <option value="Vlog">Vlog</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">状态</label>
+          <select class="form-select" id="formStatus">
+            <option value="idea">灵感收集</option>
+            <option value="writing">撰写中</option>
+            <option value="shooting">拍摄中</option>
+            <option value="editing">修图中</option>
+            <option value="ready">待发布</option>
+            <option value="published">已发布</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">计划发布日期</label>
+          <input class="form-input" id="formDate" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">计划发布时间</label>
+          <select class="form-select" id="formTime">
+            <option value="">未定</option>
+            <option value="07:00">07:00 早通勤</option>
+            <option value="07:30">07:30</option>
+            <option value="08:00">08:00</option>
+            <option value="08:30">08:30</option>
+            <option value="12:00">12:00 午休</option>
+            <option value="12:30">12:30</option>
+            <option value="13:00">13:00</option>
+            <option value="18:00">18:00 下班</option>
+            <option value="18:30">18:30</option>
+            <option value="20:00">20:00 晚间</option>
+            <option value="20:30">20:30</option>
+            <option value="21:00">21:00 黄金档</option>
+            <option value="21:30">21:30</option>
+            <option value="22:00">22:00</option>
+            <option value="22:30">22:30</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">热度预估 (1-5)</label>
+        <div style="display:flex;gap:6px;" id="heatSelector">
+          <span class="heat-star" data-val="1" onclick="setHeat(1)" style="cursor:pointer;font-size:20px;color:var(--border);transition:color 0.15s;">&#9733;</span>
+          <span class="heat-star" data-val="2" onclick="setHeat(2)" style="cursor:pointer;font-size:20px;color:var(--border);transition:color 0.15s;">&#9733;</span>
+          <span class="heat-star" data-val="3" onclick="setHeat(3)" style="cursor:pointer;font-size:20px;color:var(--border);transition:color 0.15s;">&#9733;</span>
+          <span class="heat-star" data-val="4" onclick="setHeat(4)" style="cursor:pointer;font-size:20px;color:var(--border);transition:color 0.15s;">&#9733;</span>
+          <span class="heat-star" data-val="5" onclick="setHeat(5)" style="cursor:pointer;font-size:20px;color:var(--border);transition:color 0.15s;">&#9733;</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">描述 / 大纲 / 备注</label>
+        <textarea class="form-textarea" id="formDesc" placeholder="内容描述、大纲要点、拍摄注意事项等"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">封面风格提示</label>
+        <input class="form-input" id="formCover" placeholder="如：暖色调俯拍 / 极简白底加字 / Before&After对比">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeAddModal()">取消</button>
+      <button class="btn btn-primary" id="formSubmitBtn" onclick="submitForm()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast容器 -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+  // ========== 数据层 ==========
+  const CATEGORIES = ['改造', '好物', '干货', '日常', '灵感', 'Vlog'];
+  const STATUS_MAP = {
+    idea: { label: '灵感收集', color: '#8C7E72' },
+    writing: { label: '撰写中', color: '#8B7EC8' },
+    shooting: { label: '拍摄中', color: '#4A9AAE' },
+    editing: { label: '修图中', color: '#D4A574' },
+    ready: { label: '待发布', color: '#C4704B' },
+    published: { label: '已发布', color: '#5E8A62' }
+  };
+  const KANBAN_COLUMNS = [
+    { key: 'idea', label: '灵感收集', dotColor: '#8C7E72' },
+    { key: 'writing', label: '撰写中', dotColor: '#8B7EC8' },
+    { key: 'shooting', label: '拍摄中', dotColor: '#4A9AAE' },
+    { key: 'editing', label: '修图中', dotColor: '#D4A574' },
+    { key: 'ready', label: '待发布', dotColor: '#C4704B' },
+    { key: 'published', label: '已发布', dotColor: '#5E8A62' }
+  ];
+
+  const DAYS = ['一', '二', '三', '四', '五', '六', '日'];
+
+  // 初始化示例数据
+  let nextId = 100;
+  function getInitialData() {
+    const today = new Date();
+    const fmt = (d) => d.toISOString().split('T')[0];
+    const addDays = (d, n) => { const r = new Date(d); r.setDate(r.getDate()+n); return r; };
+
+    return [
+      { id:1, title:'出租屋大改造 | 800元打造法式复古卧室', category:'改造', status:'published', date:fmt(addDays(today,-5)), time:'21:00', heat:5, desc:'Before&After对比展示，重点介绍墙纸选择和灯光布置', cover:'暖色调Before&After拼图' },
+      { id:2, title:'2024最值得入的10件家居好物', category:'好物', status:'published', date:fmt(addDays(today,-3)), time:'20:30', heat:4, desc:'按价格区间分类推荐，每件附实拍图和购买链接', cover:'白色背景整齐排列' },
+      { id:3, title:'小户型收纳终极指南 | 客厅篇', category:'干货', status:'editing', date:fmt(addDays(today,1)), time:'12:00', heat:5, desc:'6个收纳法则+8件收纳神器推荐，附尺寸对比', cover:'俯拍收纳细节' },
+      { id:4, title:'周末在家插花 | 治愈系Vlog', category:'Vlog', status:'shooting', date:fmt(addDays(today,3)), time:'10:00', heat:3, desc:'花材选择+插花过程+最终摆放效果，ASMR风格', cover:'花束特写暖光' },
+      { id:5, title:'奶油风客厅软装灵感合集', category:'灵感', status:'idea', date:fmt(addDays(today,5)), time:'21:00', heat:4, desc:'收集20个奶油风客厅案例，按面积分类', cover:'九宫格灵感拼图' },
+      { id:6, title:'宜家新品实测 | 这5件真的值得买吗', category:'好物', status:'writing', date:fmt(addDays(today,4)), time:'20:00', heat:4, desc:'实测5件宜家新品，真实使用一周后给出评价', cover:'产品白底实拍对比' },
+      { id:7, title:'阳台改造 | 2平米变休闲角', category:'改造', status:'ready', date:fmt(addDays(today,0)), time:'08:00', heat:5, desc:'小阳台改造全流程，含防水处理和绿植选择', cover:'改造后阳光洒入的角落' },
+      { id:8, title:'入住一年的家 | 真实生活记录', category:'日常', status:'idea', date:fmt(addDays(today,7)), time:'21:30', heat:3, desc:'入住一年后各空间的真实状态，不完美的日常', cover:'生活气息的随手拍' },
+      { id:9, title:'厨房台面收纳 | 从凌乱到整齐', category:'干货', status:'writing', date:fmt(addDays(today,6)), time:'12:30', heat:4, desc:'厨房台面收纳三步法，推荐5个实用收纳工具', cover:'整齐台面俯拍' },
+      { id:10, title:'卧室灯光搭配公式', category:'干货', status:'idea', date:'', time:'', heat:3, desc:'主灯+氛围灯+功能灯的搭配公式，不同预算方案', cover:'暖光卧室氛围图' },
+      { id:11, title:'独居女生的安全感好物', category:'好物', status:'idea', date:'', time:'', heat:4, desc:'门阻、监控、智能锁等安全好物推荐', cover:'安全感氛围产品图' },
+      { id:12, title:'浴室改造 | 精装房丑浴室拯救计划', category:'改造', status:'ready', date:fmt(addDays(today,2)), time:'21:00', heat:5, desc:'不砸砖改造法，贴纸+置物架+灯光三件套', cover:'改造前后对比竖图' },
+    ];
+  }
+
+  let contents = getInitialData();
+  let currentFilter = 'all';
+  let topicFilter = 'all';
+  let calendarYear, calendarMonth;
+  let editingId = null;
+  let formHeat = 3;
+
+  // 初始化日历月份
+  (function() {
+    const now = new Date();
+    calendarYear = now.getFullYear();
+    calendarMonth = now.getMonth();
+  })();
+
+  // ========== 通用工具 ==========
+  function showToast(msg, icon='fa-check-circle') {
+    const c = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.innerHTML = `<i class="fas ${icon}"></i>${msg}`;
+    c.appendChild(t);
+    setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(40px)'; t.style.transition='all 0.3s'; setTimeout(()=>t.remove(), 300); }, 2500);
+  }
+
+  function saveData() {
+    try { localStorage.setItem('jialu_contents', JSON.stringify(contents)); } catch(e) {}
+  }
+  function loadData() {
+    try {
+      const d = localStorage.getItem('jialu_contents');
+      if (d) contents = JSON.parse(d);
+    } catch(e) {}
+  }
+
+  // ========== 页面切换 ==========
+  function switchPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-'+page).classList.add('active');
+    document.querySelectorAll('.sidebar nav a').forEach(a => {
+      a.classList.toggle('active', a.dataset.page === page);
+    });
+    const titles = {
+      dashboard: '工作台 <span>总览你的内容规划</span>',
+      kanban: '内容看板 <span>拖拽管理内容进度</span>',
+      calendar: '发布日历 <span>直观查看发布安排</span>',
+      topics: '选题灵感库 <span>积累和发现好选题</span>',
+      schedule: '发布时间表 <span>最佳发布时间规划</span>'
+    };
+    document.getElementById('pageTitle').innerHTML = titles[page] || '';
+    // 渲染对应页面
+    if (page === 'dashboard') renderDashboard();
+    if (page === 'kanban') renderKanban();
+    if (page === 'calendar') renderCalendar();
+    if (page === 'topics') renderTopics();
+    if (page === 'schedule') renderSchedule();
+  }
+
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+  }
+
+  // ========== 仪表盘 ==========
+  function renderDashboard() {
+    const total = contents.length;
+    const done = contents.filter(c => c.status === 'published').length;
+    const wip = contents.filter(c => ['writing','shooting','editing'].includes(c.status)).length;
+    const hot = contents.filter(c => c.heat >= 4).length;
+
+    document.getElementById('dash-total').textContent = total;
+    document.getElementById('dash-done').textContent = done;
+    document.getElementById('dash-wip').textContent = wip;
+    document.getElementById('dash-hot').textContent = hot;
+
+    // 更新侧边栏统计
+    const thisMonth = new Date().getMonth();
+    const thisYear = new Date().getFullYear();
+    const publishedThisMonth = contents.filter(c => {
+      if (c.status !== 'published' || !c.date) return false;
+      const d = new Date(c.date);
+      return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+    }).length;
+    const pendingCount = contents.filter(c => c.status === 'ready').length;
+    const topicCount = contents.filter(c => c.status === 'idea').length;
+    document.getElementById('stat-published').textContent = publishedThisMonth;
+    document.getElementById('stat-pending').textContent = pendingCount;
+    document.getElementById('stat-topics').textContent = topicCount;
+
+    // 近期待发布
+    const upcoming = contents
+      .filter(c => c.date && c.status !== 'published')
+      .sort((a,b) => a.date.localeCompare(b.date))
+      .slice(0, 5);
+    const upEl = document.getElementById('dash-upcoming');
+    if (upcoming.length === 0) {
+      upEl.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>暂无待发布内容</p></div>';
+    } else {
+      upEl.innerHTML = upcoming.map(c => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border-light);cursor:pointer;" onclick="openEditModal(${c.id})">
+          <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+            <span class="card-tag tag-${c.category}" style="flex-shrink:0;">${c.category}</span>
+            <span style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.title}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+            <span style="font-size:11px;color:var(--fg-muted);"><i class="fas fa-clock" style="margin-right:3px;"></i>${c.date.slice(5)}${c.time||''}</span>
+            <span style="font-size:10px;padding:2px 8px;border-radius:4px;background:${STATUS_MAP[c.status].color}18;color:${STATUS_MAP[c.status].color};font-weight:500;">${STATUS_MAP[c.status].label}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // 分类占比 - 画简单条形图
+    const catCounts = {};
+    CATEGORIES.forEach(cat => catCounts[cat] = 0);
+    contents.forEach(c => { if (catCounts[c.category] !== undefined) catCounts[c.category]++; });
+    const maxCount = Math.max(...Object.values(catCounts), 1);
+    const catColors = { '改造':'#C4704B', '好物':'#D4A574', '干货':'#7A9E7E', '日常':'#8B7EC8', '灵感':'#B06070', 'Vlog':'#4A9AAE' };
+    const chartEl = document.getElementById('dash-category-chart');
+    chartEl.innerHTML = CATEGORIES.map(cat => `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <span style="font-size:12px;width:36px;text-align:right;color:var(--fg-muted);">${cat}</span>
+        <div style="flex:1;height:22px;background:var(--bg-deep);border-radius:4px;overflow:hidden;">
+          <div style="height:100%;width:${(catCounts[cat]/maxCount)*100}%;background:${catColors[cat]};border-radius:4px;transition:width 0.5s ease;display:flex;align-items:center;padding-left:8px;">
+            <span style="font-size:10px;color:white;font-weight:600;">${catCounts[cat]}</span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    // 本周日历预览
+    renderWeekPreview();
+  }
+
+  function renderWeekPreview() {
+    const today = new Date();
+    const dayOfWeek = today.getDay() === 0 ? 6 : today.getDay() - 1; // 周一=0
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - dayOfWeek);
+
+    let html = '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:10px;">';
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(weekStart);
+      d.setDate(weekStart.getDate() + i);
+      const dateStr = d.toISOString().split('T')[0];
+      const isToday = dateStr === today.toISOString().split('T')[0];
+      const dayItems = contents.filter(c => c.date === dateStr);
+
+      html += `<div style="background:${isToday?'rgba(196,112,75,0.06)':'var(--bg-deep)'};border-radius:10px;padding:12px;min-height:80px;border:${isToday?'2px solid var(--accent)':'1px solid var(--border-light)'};">
+        <div style="font-size:11px;font-weight:${isToday?'700':'500'};color:${isToday?'var(--accent)':'var(--fg-muted)'};margin-bottom:6px;">
+          周${DAYS[i]} <span style="margin-left:2px;">${d.getDate()}</span>
+        </div>`;
+      dayItems.forEach(item => {
+        html += `<div style="font-size:10px;padding:3px 6px;border-radius:3px;background:${STATUS_MAP[item.status].color}15;color:${STATUS_MAP[item.status].color};margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;" onclick="openEditModal(${item.id})">${item.time||''} ${item.title.slice(0,8)}</div>`;
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+    document.getElementById('dash-week').innerHTML = html;
+  }
+
+  // ========== 内容看板 ==========
+  let currentKanbanFilter = 'all';
+
+  function filterKanban(cat, el) {
+    currentKanbanFilter = cat;
+    document.querySelectorAll('#page-kanban .filter-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    renderKanban();
+  }
+
+  function renderKanban() {
+    const board = document.getElementById('kanbanBoard');
+    board.innerHTML = KANBAN_COLUMNS.map(col => {
+      let items = contents.filter(c => c.status === col.key);
+      if (currentKanbanFilter !== 'all') items = items.filter(c => c.category === currentKanbanFilter);
+
+      return `
+        <div class="kanban-column" data-status="${col.key}"
+          ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+          <div class="kanban-column-header">
+            <div class="col-title">
+              <span class="dot" style="background:${col.dotColor};"></span>
+              ${col.label}
+            </div>
+            <span class="col-count">${items.length}</span>
+          </div>
+          <div class="kanban-cards" data-status="${col.key}">
+            ${items.map(item => renderKanbanCard(item)).join('')}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderKanbanCard(item) {
+    const heatIcons = '🔥'.repeat(Math.min(item.heat, 5));
+    return `
+      <div class="kanban-card" draggable="true" data-id="${item.id}"
+        ondragstart="handleDragStart(event)" ondragend="handleDragEnd(event)">
+        <div class="card-actions">
+          <button onclick="openEditModal(${item.id})" title="编辑"><i class="fas fa-pen"></i></button>
+          <button onclick="deleteItem(${item.id})" title="删除"><i class="fas fa-trash"></i></button>
+        </div>
+        <div class="card-title">${item.title}</div>
+        <div class="card-tags">
+          <span class="card-tag tag-${item.category}">${item.category}</span>
+          ${item.heat>=4?'<span class="card-tag" style="background:rgba(196,112,75,0.1);color:#C4704B;">高热度</span>':''}
+        </div>
+        <div class="card-meta">
+          <div class="schedule">
+            ${item.date ? `<i class="fas fa-calendar-check"></i>${item.date.slice(5)} ${item.time||''}` : '<span style="opacity:0.5;">未排期</span>'}
+          </div>
+          <div>${heatIcons}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // 拖拽逻辑
+  let dragId = null;
+  function handleDragStart(e) {
+    dragId = parseInt(e.target.dataset.id);
+    e.target.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  }
+  function handleDragEnd(e) {
+    e.target.classList.remove('dragging');
+    document.querySelectorAll('.kanban-column').forEach(c => c.classList.remove('drag-over'));
+  }
+  function handleDragOver(e) {
+    e.preventDefault();
+    e.currentTarget.classList.add('drag-over');
+  }
+  function handleDragLeave(e) {
+    e.currentTarget.classList.remove('drag-over');
+  }
+  function handleDrop(e) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('drag-over');
+    const newStatus = e.currentTarget.dataset.status;
+    if (dragId !== null) {
+      const item = contents.find(c => c.id === dragId);
+      if (item && item.status !== newStatus) {
+        item.status = newStatus;
+        saveData();
+        renderKanban();
+        showToast(`已移至「${STATUS_MAP[newStatus].label}」`, 'fa-arrows-alt');
+      }
+    }
+    dragId = null;
+  }
+
+  // ========== 发布日历 ==========
+  function changeMonth(delta) {
+    calendarMonth += delta;
+    if (calendarMonth > 11) { calendarMonth = 0; calendarYear++; }
+    if (calendarMonth < 0) { calendarMonth = 11; calendarYear--; }
+    renderCalendar();
+  }
+  function goToday() {
+    const now = new Date();
+    calendarYear = now.getFullYear();
+    calendarMonth = now.getMonth();
+    renderCalendar();
+  }
+
+  function renderCalendar() {
+    document.getElementById('calendarTitle').textContent = `${calendarYear}年${calendarMonth+1}月`;
+    const grid = document.getElementById('calendarGrid');
+
+    // 表头
+    let html = DAYS.map(d => `<div class="calendar-header-cell">周${d}</div>`).join('');
+
+    // 计算日期
+    const firstDay = new Date(calendarYear, calendarMonth, 1);
+    let startDow = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1; // 周一=0
+    const daysInMonth = new Date(calendarYear, calendarMonth+1, 0).getDate();
+    const daysInPrevMonth = new Date(calendarYear, calendarMonth, 0).getDate();
+    const today = new Date().toISOString().split('T')[0];
+
+    // 上月填充
+    for (let i = startDow - 1; i >= 0; i--) {
+      const d = daysInPrevMonth - i;
+      const m = calendarMonth === 0 ? 12 : calendarMonth;
+      const y = calendarMonth === 0 ? calendarYear - 1 : calendarYear;
+      const dateStr = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      html += `<div class="calendar-cell other-month"><div class="day-num">${d}</div>${renderCalItems(dateStr)}</div>`;
+    }
+
+    // 本月
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${calendarYear}-${String(calendarMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isToday = dateStr === today;
+      html += `<div class="calendar-cell${isToday?' today':''}" ondblclick="quickAddToDate('${dateStr}')"><div class="day-num">${d}</div>${renderCalItems(dateStr)}</div>`;
+    }
+
+    // 下月填充
+    const totalCells = startDow + daysInMonth;
+    const remaining = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+    for (let d = 1; d <= remaining; d++) {
+      const m = calendarMonth + 2 > 12 ? 1 : calendarMonth + 2;
+      const y = calendarMonth + 2 > 12 ? calendarYear + 1 : calendarYear;
+      const dateStr = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      html += `<div class="calendar-cell other-month"><div class="day-num">${d}</div>${renderCalItems(dateStr)}</div>`;
+    }
+
+    grid.innerHTML = html;
+  }
+
+  function renderCalItems(dateStr) {
+    const items = contents.filter(c => c.date === dateStr);
+    const catColors = { '改造':'#C4704B', '好物':'#D4A574', '干货':'#7A9E7E', '日常':'#8B7EC8', '灵感':'#B06070', 'Vlog':'#4A9AAE' };
+    return items.map(item => `
+      <div class="cal-item" style="background:${catColors[item.category]}12;color:${catColors[item.category]};border-left-color:${catColors[item.category]};" onclick="openEditModal(${item.id})">
+        ${item.time ? item.time+' ' : ''}${item.title.slice(0,10)}
+      </div>
+    `).join('');
+  }
+
+  function quickAddToDate(dateStr) {
+    openAddModal();
+    setTimeout(() => {
+      document.getElementById('formDate').value = dateStr;
+    }, 100);
+  }
+
+  // ========== 选题灵感库 ==========
+  function filterTopics(cat, el) {
+    topicFilter = cat;
+    document.querySelectorAll('#page-topics .filter-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    renderTopics();
+  }
+
+  function renderTopics() {
+    let items = contents.filter(c => c.status === 'idea');
+    if (topicFilter !== 'all') items = items.filter(c => c.category === topicFilter);
+
+    const grid = document.getElementById('topicGrid');
+    if (items.length === 0) {
+      grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-lightbulb"></i><p>暂无灵感选题，点击上方按钮添加</p></div>';
+      return;
+    }
+
+    const catColors = { '改造':'#C4704B', '好物':'#D4A574', '干货':'#7A9E7E', '日常':'#8B7EC8', '灵感':'#B06070', 'Vlog':'#4A9AAE' };
+
+    grid.innerHTML = items.map(item => `
+      <div class="topic-card">
+        <div style="position:absolute;top:0;right:0;width:60px;height:60px;background:${catColors[item.category]}08;border-radius:0 var(--radius) 0 60px;"></div>
+        <span class="topic-cat tag-${item.category}">${item.category}</span>
+        <div class="topic-title">${item.title}</div>
+        <div class="topic-desc">${item.desc || '暂无描述'}</div>
+        <div class="topic-footer">
+          <div class="topic-heat">
+            ${'<i class="fas fa-fire"></i>'.repeat(item.heat)}
+            <span style="margin-left:4px;">热度 ${item.heat}</span>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-sm btn-sage" onclick="promoteIdea(${item.id})">转为待办</button>
+            <button class="btn btn-sm btn-ghost" onclick="openEditModal(${item.id})">编辑</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function promoteIdea(id) {
+    const item = contents.find(c => c.id === id);
+    if (item) {
+      item.status = 'writing';
+      saveData();
+      renderTopics();
+      showToast('已转为撰写中', 'fa-rocket');
+    }
+  }
+
+  // 灵感生成器
+  const IDEA_TEMPLATES = [
+    { cat:'改造', titles:['出租屋爆改 | {room}只花了{budget}元','拯救精装房丑{room} | 不砸墙不换柜','旧物改造 | {item}的N种创意用法','小户型{room}大改造 | 空间翻倍术','{style}风{room}改造全纪录'] },
+    { cat:'好物', titles:['居家幸福感爆棚的{count}件好物','{price}元以内提升生活品质的{count}件好物','用了就回不去的{count}件家居神器','独居必备的{count}件安全感好物','被问爆的{count}件家居好物清单'] },
+    { cat:'干货', titles:['{room}收纳终极指南 | 从凌乱到整齐','装修避坑{count}条血泪经验','小户型显大{count}招 | 视觉扩容术','灯光搭配公式 | {room}这样打灯超有氛围','家居配色不求人 | {style}风搭配法则'] },
+    { cat:'日常', titles:['入住{time}的真实家 | 不完美但很舒服','周末在家{activity} | 治愈日常','下班后的独居日常 | 被家治愈的瞬间','在家做饭的日子 | {meal}记录','下雨天在家的{count}件小事'] },
+    { cat:'灵感', titles:['{style}风{room}灵感合集 | 直接抄作业','绝美{room}布置灵感 | 小红书爆款合集','{count}个让人心动的家居细节','审美在线的{style}风家居灵感','2024最火的{count}种{room}布置方案'] },
+    { cat:'Vlog', titles:['{activity}Vlog | 治愈系居家记录','周末大扫除 | 沉浸式清洁Vlog','开箱{count}件家居好物 | 期待已久','一个人的晚餐 | 氛围感居家Vlog','改造{room}全记录 | 从开工到完工'] },
+  ];
+
+  const FILL = {
+    room: ['卧室','客厅','厨房','浴室','阳台','书房','玄关','餐厅','儿童房','衣帽间'],
+    budget: ['500','800','1000','2000','3000','5000'],
+    count: ['5','6','8','10','12'],
+    price: ['50','100','200','300'],
+    style: ['奶油','法式复古','日式原木','极简','北欧','侘寂','中古','新中式','ins风'],
+    item: ['旧椅子','玻璃瓶','木托盘','旧窗帘','木箱','旧梯子'],
+    time: ['半年','一年','两年','三个月'],
+    activity: ['插花','整理','烘焙','读书','泡澡','手作'],
+    meal: ['一人食','早餐','下午茶','brunch'],
+  };
+
+  function fillTemplate(tpl) {
+    return tpl.replace(/\{(\w+)\}/g, (m, key) => {
+      const opts = FILL[key];
+      return opts ? opts[Math.floor(Math.random()*opts.length)] : m;
+    });
+  }
+
+  function generateIdea() {
+    const group = IDEA_TEMPLATES[Math.floor(Math.random()*IDEA_TEMPLATES.length)];
+    const title = fillTemplate(group.titles[Math.floor(Math.random()*group.titles.length)]);
+    const heat = Math.floor(Math.random()*3)+3;
+
+    const newItem = {
+      id: nextId++,
+      title: title,
+      category: group.cat,
+      status: 'idea',
+      date: '',
+      time: '',
+      heat: heat,
+      desc: '灵感自动生成，可编辑完善',
+      cover: ''
+    };
+    contents.push(newItem);
+    saveData();
+    renderTopics();
+    showToast(`灵感已生成：${title.slice(0,15)}...`, 'fa-magic');
+  }
+
+  // ========== 发布时间表 ==========
+  function renderSchedule() {
+    const slots = document.getElementById('timeSlots');
+    // 本周日期
+    const today = new Date();
+    const dayOfWeek = today.getDay() === 0 ? 6 : today.getDay() - 1;
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - dayOfWeek);
+
+    const catColors = { '改造':'#C4704B', '好物':'#D4A574', '干货':'#7A9E7E', '日常':'#8B7EC8', '灵感':'#B06070', 'Vlog':'#4A9AAE' };
+
+    let html = '';
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(weekStart);
+      d.setDate(weekStart.getDate() + i);
+      const dateStr = d.toISOString().split('T')[0];
+      const isWeekend = i >= 5;
+      const isToday = dateStr === today.toISOString().split('T')[0];
+
+      const dayItems = contents.filter(c => c.date === dateStr).sort((a,b) => (a.time||'').localeCompare(b.time||''));
+
+      html += `
+        <div class="time-slot-col">
+          <div class="time-slot-day" style="${isToday?'background:var(--accent);':''}">
+            周${DAYS[i]}<br><span style="font-weight:400;font-size:11px;">${d.getMonth()+1}/${d.getDate()}</span>
+          </div>
+          <div class="time-slot-body">
+            ${isWeekend ? '<div style="font-size:10px;color:var(--sage);margin-bottom:6px;font-weight:500;"><i class="fas fa-coffee" style="margin-right:3px;"></i>周末推荐 10-12/15-17/20-23点</div>' : '<div style="font-size:10px;color:var(--fg-muted);margin-bottom:6px;"><i class="fas fa-bolt" style="margin-right:3px;color:var(--accent);"></i>工作日推荐 7-9/12-13/20-22点</div>'}
+            ${dayItems.length === 0 ? '<div style="font-size:11px;color:var(--border);text-align:center;padding-top:20px;">暂无安排</div>' :
+              dayItems.map(item => `
+                <div class="time-slot-item" style="background:${catColors[item.category]}08;border-left-color:${catColors[item.category]};" onclick="openEditModal(${item.id})">
+                  <div class="slot-time" style="color:${catColors[item.category]};">${item.time||'未定'} ${item.category}</div>
+                  <div class="slot-title">${item.title.slice(0,16)}</div>
+                </div>
+              `).join('')
+            }
+          </div>
+        </div>
+      `;
+    }
+    slots.innerHTML = html;
+  }
+
+  // ========== 模态框 ==========
+  function openAddModal() {
+    editingId = null;
+    document.getElementById('modalTitle').textContent = '新建内容';
+    document.getElementById('formTitle').value = '';
+    document.getElementById('formCategory').value = '改造';
+    document.getElementById('formStatus').value = 'idea';
+    document.getElementById('formDate').value = '';
+    document.getElementById('formTime').value = '';
+    document.getElementById('formDesc').value = '';
+    document.getElementById('formCover').value = '';
+    setHeat(3);
+    document.getElementById('addModal').classList.add('show');
+  }
+
+  function openEditModal(id) {
+    const item = contents.find(c => c.id === id);
+    if (!item) return;
+    editingId = id;
+    document.getElementById('modalTitle').textContent = '编辑内容';
+    document.getElementById('formTitle').value = item.title;
+    document.getElementById('formCategory').value = item.category;
+    document.getElementById('formStatus').value = item.status;
+    document.getElementById('formDate').value = item.date;
+    document.getElementById('formTime').value = item.time;
+    document.getElementById('formDesc').value = item.desc;
+    document.getElementById('formCover').value = item.cover || '';
+    setHeat(item.heat);
+    document.getElementById('addModal').classList.add('show');
+  }
+
+  function closeAddModal() {
+    document.getElementById('addModal').classList.remove('show');
+  }
+
+  function setHeat(val) {
+    formHeat = val;
+    document.querySelectorAll('.heat-star').forEach(s => {
+      s.style.color = parseInt(s.dataset.val) <= val ? 'var(--accent)' : 'var(--border)';
+    });
+  }
+
+  function submitForm() {
+    const title = document.getElementById('formTitle').value.trim();
+    if (!title) { showToast('请输入标题', 'fa-exclamation-circle'); return; }
+
+    const data = {
+      title: title,
+      category: document.getElementById('formCategory').value,
+      status: document.getElementById('formStatus').value,
+      date: document.getElementById('formDate').value,
+      time: document.getElementById('formTime').value,
+      heat: formHeat,
+      desc: document.getElementById('formDesc').value.trim(),
+      cover: document.getElementById('formCover').value.trim()
+    };
+
+    if (editingId !== null) {
+      const item = contents.find(c => c.id === editingId);
+      if (item) Object.assign(item, data);
+      showToast('内容已更新', 'fa-check-circle');
+    } else {
+      data.id = nextId++;
+      contents.push(data);
+      showToast('内容已创建', 'fa-check-circle');
+    }
+
+    saveData();
+    closeAddModal();
+    // 刷新当前页面
+    const activePage = document.querySelector('.sidebar nav a.active');
+    if (activePage) switchPage(activePage.dataset.page);
+  }
+
+  function deleteItem(id) {
+    contents = contents.filter(c => c.id !== id);
+    saveData();
+    const activePage = document.querySelector('.sidebar nav a.active');
+    if (activePage) switchPage(activePage.dataset.page);
+    showToast('已删除', 'fa-trash');
+  }
+
+  // ========== 响应式菜单 ==========
+  function checkResponsive() {
+    const menuBtn = document.getElementById('menuBtn');
+    if (window.innerWidth <= 1024) {
+      menuBtn.style.display = 'inline-flex';
+    } else {
+      menuBtn.style.display = 'none';
+      document.getElementById('sidebar').classList.remove('open');
+    }
+  }
+
+  // ========== 初始化 ==========
+  loadData();
+  // 如果没有数据，使用默认数据
+  if (contents.length === 0) contents = getInitialData();
+  switchPage('dashboard');
+  checkResponsive();
+  window.addEventListener('resize', checkResponsive);
+
+  // 点击模态框外部关闭
+  document.getElementById('addModal').addEventListener('click', function(e) {
+    if (e.target === this) closeAddModal();
+  });
+
+  // 键盘快捷键
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeAddModal();
+    if (e.key === 'n' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); openAddModal(); }
+  });
+</script>
+</body>
+</html>
+
