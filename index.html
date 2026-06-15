@@ -5,7 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>好奇八宝粥の家 · 内容规划台</title>
+<title>家录 · 小红书家居博主内容规划台</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -541,7 +541,7 @@
 <!-- 侧边栏 -->
 <aside class="sidebar" id="sidebar">
   <div class="logo-area">
-    <h1 class="font-display" LUCKY </h1>
+    <h1 class="font-display">JIA LU</h1>
     <p>小红书家居博主工作台</p>
   </div>
   <nav>
@@ -876,11 +876,11 @@
   }
 
   function saveData() {
-    try { localStorage.setItem('HQBBZ_contents', JSON.stringify(contents)); } catch(e) {}
+    try { localStorage.setItem('jialu_contents', JSON.stringify(contents)); } catch(e) {}
   }
   function loadData() {
     try {
-      const d = localStorage.getItem( HQBBZ_contents');
+      const d = localStorage.getItem('jialu_contents');
       if (d) contents = JSON.parse(d);
     } catch(e) {}
   }
@@ -1434,4 +1434,3 @@
 </script>
 </body>
 </html>
-
